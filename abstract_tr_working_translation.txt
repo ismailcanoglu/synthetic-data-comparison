@@ -1,0 +1,9 @@
+Başlık: Veri Miktarının Ötesinde: Dengesiz Sınıflandırmada Sentetik Veri Üretimi, Simülasyon Tabanlı Örnekleme ve Veri Artırmanın Deneysel Karşılaştırılması
+
+Bu çalışmada, makine öğrenmesinde veri yetersizliği ve sınıf dengesizliği sorunları için kullanılan üç üretim stratejisinin etkisi incelenmektedir: SMOTE ile interpolasyona dayalı veri artırma, CTGAN ile öğrenilmiş tabular veri üretimi ve veri üretim mekanizmasının bilindiği oracle-bilgili simülasyon. Bu kavramlar birbirini dışlayan kategoriler olarak değil, farklı üretim mekanizmaları olarak ele alınmaktadır.
+
+Altı sayısal özellik, doğrusal olmayan ilişkiler ve yaklaşık 90:10 sınıf dağılımı içeren kontrollü ikili sınıflandırma verisi kullanılmaktadır. Beş rastgele tohumun her birinde 1.000 eğitim ve bağımsız 2.000 test örneği üretilmiştir. Logistic Regression ve Random Forest modelleri makro F1, azınlık F1, dengeli doğruluk ve AUROC metrikleriyle değerlendirilmiştir. SMOTE ve simülasyon aynı miktarda azınlık örneği eklemiştir; test verisine müdahale edilmemiştir. Simülasyonun gerçek veri üretim mekanizmasına erişimi, ayrıcalıklı bilgi avantajı olarak açıkça belirtilmektedir.
+
+İlk sonuçlar baseline, SMOTE ve oracle simülasyon için mevcuttur; CTGAN sonuçları henüz bulunmadığından karşılaştırmaya dahil edilmemiştir. Logistic Regression için azınlık F1 değeri 0,268'den SMOTE ile 0,348'e ve simülasyonla 0,351'e yükselirken makro F1 sırasıyla 0,610'dan 0,594 ve 0,596'ya düşmüştür. Random Forest için tamamlanan yöntemler arasında en yüksek makro F1 SMOTE'da (0,617), en yüksek dengeli doğruluk (0,716) ve AUROC (0,790) ise oracle simülasyonda gözlenmiştir. Beş tohum üzerinden hesaplanan bu betimsel ortalamalar istatistiksel üstünlük kanıtı değildir.
+
+Bulgular, yöntem sıralamalarının metriklere, sınıflandırıcıya ve üreticinin eriştiği bilgiye bağlı olduğunu göstermektedir. CTGAN sonuçları, ek tohumlar ve belirsizlik analizleri tamamlanmadan genel üstünlük iddiasında bulunulmamalıdır.
