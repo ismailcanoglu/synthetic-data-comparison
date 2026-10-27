@@ -6,6 +6,8 @@ import argparse
 import hashlib
 import json
 import platform
+import os
+import tempfile
 import time
 from pathlib import Path
 
@@ -74,6 +76,25 @@ def check_protocol_match(cfg, protocol):
     if cfg["ctgan_epochs_by_model"] != {"LR": 10, "RF": 10}:
         raise ValueError("Unexpected CTGAN epoch selection")
     return True
+
+
+def atomic_csv_write(frame, destination):
+    """Write a complete CSV to a sibling temp file, then atomically replace it."""
+    destination = Path(destination)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".tmp", prefix=destination.name + ".",
+            dir=destination.parent, encoding="utf-8", newline="", delete=False
+        ) as handle:
+            temporary = Path(handle.name)
+            frame.to_csv(handle, index=False)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 
 def model_for(name, seed, weighted, trees):
@@ -175,9 +196,9 @@ def run(cfg, output, protocol=None):
                                              model=model_name, error=repr(exc)))
                         print(f"FAILED {key}: {exc}", flush=True)
                     # Persist after each unit so interruption loses at most one unit.
-                    pd.DataFrame(results, columns=FIELDS).to_csv(results_path, index=False)
-                    pd.DataFrame(failures, columns=["scenario","seed","method","model","error"]).to_csv(
-                        failures_path, index=False)
+                    atomic_csv_write(pd.DataFrame(results, columns=FIELDS), results_path)
+                    atomic_csv_write(pd.DataFrame(failures, columns=["scenario","seed","method","model","error"]),
+                                     failures_path)
     df = pd.DataFrame(results, columns=FIELDS)
     expected = len(cfg["scenarios"]) * len(cfg["seeds"]) * len(cfg["methods"]) * 2 * 2
     if len(df) != expected or df.duplicated(
