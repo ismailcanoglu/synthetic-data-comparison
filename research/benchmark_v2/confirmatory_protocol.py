@@ -22,6 +22,10 @@ def validate_protocol(protocol):
     seeds = protocol["evaluation_seeds"]
     if len(seeds) != 30 or len(set(seeds)) != 30 or any(not isinstance(s, int) for s in seeds):
         raise ValueError("Exactly 30 distinct integer evaluation seeds required")
+    if seeds != list(range(10000, 10030)):
+        raise ValueError("Evaluation seeds must be the untouched 10000-10029 range")
+    if protocol["development_seeds"] != list(range(9100, 9110)):
+        raise ValueError("Development seeds must be 9100-9109")
     if set(seeds) & set(protocol["development_seeds"]):
         raise ValueError("Evaluation and development seeds overlap")
     if set(protocol["scenarios"]) != set(SCENARIOS) or set(protocol["methods"]) != set(METHODS):
@@ -30,8 +34,13 @@ def validate_protocol(protocol):
         raise ValueError("Both models required")
     if protocol["primary_metric"] != "ap" or protocol["primary_policy"] != "default":
         raise ValueError("Primary endpoint must be threshold-independent AP")
-    if not isinstance(protocol["ctgan_epochs"], int) or protocol["ctgan_epochs"] < 1:
-        raise ValueError("Freeze one positive CTGAN epoch count")
+    epochs = protocol.get("ctgan_epochs_by_model")
+    if not isinstance(epochs, dict) or set(epochs) != set(MODELS):
+        raise ValueError("Freeze CTGAN epochs for both LR and RF")
+    if any(type(value) is not int or value < 1 for value in epochs.values()):
+        raise ValueError("CTGAN epoch counts must be positive integers")
+    if epochs != {"LR": 10, "RF": 10}:
+        raise ValueError("Epoch counts differ from the independent development selection")
     if protocol.get("selection_uses_evaluation_results", True):
         raise ValueError("Evaluation data cannot be used for hyperparameter selection")
     return True
