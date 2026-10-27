@@ -48,9 +48,31 @@ def validate_config(cfg):
     if any(not isinstance(cfg[k], int) or cfg[k] < 1 for k in
            ("fit_n", "validation_n", "test_n", "rf_trees")):
         raise ValueError("Sample sizes and tree count must be positive")
-    if cfg["status"] == "FROZEN_BEFORE_CONFIRMATORY_RUN":
-        raise ValueError("This runner has not been audited for confirmatory execution; use EXPLORATORY")
     return cfg
+
+
+def check_protocol_match(cfg, protocol):
+    """Require exact agreement before any frozen run; no training or test access."""
+    validate_config(cfg)
+    validate_protocol(protocol)
+    if cfg["status"] != "FROZEN_BEFORE_CONFIRMATORY_RUN":
+        raise ValueError("Confirmatory config must be frozen")
+    comparisons = {
+        "seeds": "evaluation_seeds",
+        "scenarios": "scenarios",
+        "methods": "methods",
+        "ctgan_epochs_by_model": "ctgan_epochs_by_model",
+    }
+    for config_key, protocol_key in comparisons.items():
+        if cfg[config_key] != protocol[protocol_key]:
+            raise ValueError(f"Protocol mismatch: {config_key}")
+    if cfg["seeds"] != list(range(10000, 10030)):
+        raise ValueError("Unexpected evaluation seeds")
+    if protocol["development_seeds"] != list(range(9100, 9110)):
+        raise ValueError("Unexpected development seeds")
+    if cfg["ctgan_epochs_by_model"] != {"LR": 10, "RF": 10}:
+        raise ValueError("Unexpected CTGAN epoch selection")
+    return True
 
 
 def model_for(name, seed, weighted, trees):
@@ -65,22 +87,29 @@ def model_for(name, seed, weighted, trees):
     raise ValueError(name)
 
 
-def run(cfg, output):
+def run(cfg, output, protocol=None):
     validate_config(cfg)
+    if cfg["status"] == "FROZEN_BEFORE_CONFIRMATORY_RUN":
+        if protocol is None:
+            raise ValueError("Frozen run requires --protocol")
+        check_protocol_match(cfg, protocol)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     # Refuse to silently mix outputs from different configurations.
     canonical = json.dumps(cfg, sort_keys=True).encode("utf-8")
     signature = hashlib.sha256(canonical).hexdigest()
+    protocol_signature = (hashlib.sha256(json.dumps(protocol, sort_keys=True).encode("utf-8")).hexdigest()
+                          if protocol is not None else None)
     manifest_path = output / "run_manifest.json"
     if manifest_path.exists():
         previous = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if previous["config_sha256"] != signature:
+        if previous["config_sha256"] != signature or previous.get("protocol_sha256") != protocol_signature:
             raise ValueError("Output directory already belongs to another configuration")
     else:
         manifest_path.write_text(json.dumps({
-            "config_sha256": signature, "config": cfg, "python": platform.python_version(),
-            "status": "EXPLORATORY_NOT_CONFIRMATORY"
+            "config_sha256": signature, "protocol_sha256": protocol_signature,
+            "config": cfg, "protocol": protocol, "python": platform.python_version(),
+            "status": cfg["status"]
         }, indent=2), encoding="utf-8")
     results_path = output / "results_per_seed.csv"
     failures_path = output / "failures.csv"
@@ -172,5 +201,15 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--config", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--protocol", type=Path)
+    p.add_argument("--preflight-only", action="store_true")
     a = p.parse_args()
-    run(json.loads(a.config.read_text(encoding="utf-8-sig")), a.output)
+    cfg = json.loads(a.config.read_text(encoding="utf-8-sig"))
+    protocol = json.loads(a.protocol.read_text(encoding="utf-8-sig")) if a.protocol else None
+    if a.preflight_only:
+        if protocol is None:
+            raise ValueError("--preflight-only requires --protocol")
+        check_protocol_match(cfg, protocol)
+        print("PREFLIGHT PASS: config matches protocol; no training was run.")
+    else:
+        run(cfg, a.output, protocol)
