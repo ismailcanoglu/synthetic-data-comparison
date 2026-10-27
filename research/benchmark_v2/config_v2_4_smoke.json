@@ -8,7 +8,7 @@
     "ctgan"
   ],
   "seeds": [
-    10000
+    9000
   ],
   "ctgan_epochs_by_model": {
     "LR": 100,
