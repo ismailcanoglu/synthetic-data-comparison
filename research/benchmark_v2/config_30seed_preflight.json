@@ -1,5 +1,5 @@
 {
-  "status": "EXPLORATORY",
+  "status": "FROZEN_BEFORE_CONFIRMATORY_RUN",
   "scenarios": [
     "s1",
     "s2a",
