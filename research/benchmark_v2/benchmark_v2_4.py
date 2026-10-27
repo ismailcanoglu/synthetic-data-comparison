@@ -86,8 +86,16 @@ def run(cfg, output):
     failures_path = output / "failures.csv"
     results = pd.read_csv(results_path).to_dict("records") if results_path.exists() else []
     failures = pd.read_csv(failures_path).to_dict("records") if failures_path.exists() else []
-    completed = {(r["scenario"], int(r["seed"]), r["method"], r["model"])
-                 for r in results if r["threshold_policy"] == "default"}
+    # A unit is complete only when both threshold-policy rows are present.
+    expected_policies = {"default", "val_tuned"}
+    grouped = {}
+    for r in results:
+        key = (r["scenario"], int(r["seed"]), r["method"], r["model"])
+        grouped.setdefault(key, []).append(r["threshold_policy"])
+    for key, policies in grouped.items():
+        if len(policies) != 2 or set(policies) != expected_policies:
+            raise RuntimeError(f"Partial or duplicate checkpoint for {key}; repair before resuming")
+    completed = set(grouped)
     settings = Settings()
     for scenario in cfg["scenarios"]:
         for seed in cfg["seeds"]:
@@ -146,6 +154,10 @@ def run(cfg, output):
             ["scenario","seed","method","model","threshold_policy"]).any():
         raise RuntimeError(f"Incomplete experiment: {len(df)}/{expected} result rows. "
                            f"See {failures_path}")
+    if df[list(("ap", "roc_auc", "f1", "balanced_accuracy", "threshold"))].isna().any().any():
+        raise RuntimeError("Missing numeric values in results")
+    if not np.isfinite(df[["ap", "roc_auc", "f1", "balanced_accuracy", "threshold"]].to_numpy(dtype=float)).all():
+        raise RuntimeError("Non-finite numeric values in results")
     if (df.groupby(["scenario", "seed"]).test_sha256.nunique() != 1).any():
         raise RuntimeError("Test fingerprint mismatch")
     df.groupby(["scenario", "method", "model", "threshold_policy"], as_index=False).agg(
@@ -161,4 +173,4 @@ if __name__ == "__main__":
     p.add_argument("--config", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     a = p.parse_args()
-    run(json.loads(a.config.read_text(encoding="utf-8")), a.output)
+    run(json.loads(a.config.read_text(encoding="utf-8-sig")), a.output)
