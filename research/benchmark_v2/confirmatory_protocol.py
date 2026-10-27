@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import ttest_1samp, t as student_t
 
 SCENARIOS = ("s1", "s2a", "s2b", "s3a", "s3b")
 METHODS = ("baseline", "class_weight", "smote", "ctgan", "oracle")
@@ -73,20 +74,38 @@ def analyze_confirmatory(results, protocol, output):
         n = len(x)
         sd = float(np.std(x, ddof=1))
         se = sd / np.sqrt(n)
-        # Normal-approximation CI: descriptive only; small-sample inference needs pre-specification.
+        # Two-sided paired (one-sample differences) t test, 95% t interval.
+        if n < 2:
+            raise ValueError("At least two paired seeds required")
+        if sd == 0:
+            p_value = 1.0 if float(x.mean()) == 0 else 0.0
+        else:
+            p_value = float(ttest_1samp(x, popmean=0).pvalue)
+        critical = float(student_t.ppf(0.975, df=n - 1))
         rows.append(dict(scenario=scenario, model=model, method=method, n=n,
                          mean_ap_difference=float(x.mean()), sd_ap_difference=sd,
-                         ci95_normal_lower=float(x.mean() - 1.96 * se),
-                         ci95_normal_upper=float(x.mean() + 1.96 * se)))
+                         ci95_t_lower=float(x.mean() - critical * se),
+                         ci95_t_upper=float(x.mean() + critical * se),
+                         p_unadjusted=p_value))
+    # Holm step-down correction over the full family of 40 primary comparisons.
+    if len(rows) != 40:
+        raise ValueError(f"Expected 40 primary comparisons, got {len(rows)}")
+    order = sorted(range(len(rows)), key=lambda i: rows[i]["p_unadjusted"])
+    adjusted = 0.0
+    for rank, index in enumerate(order):
+        adjusted = max(adjusted, min(1.0, (len(rows) - rank) * rows[index]["p_unadjusted"]))
+        rows[index]["p_holm"] = adjusted
+        rows[index]["significant_holm_0_05"] = adjusted < 0.05
     output.mkdir(parents=True, exist_ok=True)
     paired.to_csv(output / "paired_primary.csv", index=False)
     pd.DataFrame(rows).to_csv(output / "paired_primary_summary.csv", index=False)
     (output / "analysis_manifest.json").write_text(json.dumps({
         "status": "ANALYSIS_ONLY_NOT_PROOF_OF_PROSPECTIVE_FREEZE",
         "primary": "paired AP differences versus baseline",
-        "ci": "normal approximation, descriptive",
+        "ci": "two-sided 95% Student t interval on paired seed differences (unadjusted)",
         "comparisons": "4 methods x 2 models x 5 scenarios = 40",
-        "multiplicity": "No inferential claims until correction is pre-specified and implemented",
+        "test": "two-sided one-sample t-test on paired AP differences",
+        "multiplicity": "Holm step-down across all 40 primary comparisons; alpha=0.05",
     }, indent=2), encoding="utf-8")
     return pd.DataFrame(rows)
 
