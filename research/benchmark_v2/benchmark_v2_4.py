@@ -19,6 +19,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from benchmark_v2 import Settings, sample, augment, derived_seed, digest, residual, METHODS
+from confirmatory_protocol import validate_protocol
 
 MODELS = ("LR", "RF")
 FIELDS = ["scenario", "seed", "method", "model", "threshold_policy",
