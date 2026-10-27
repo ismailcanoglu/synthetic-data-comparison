@@ -1,0 +1,72 @@
+{
+  "status": "FROZEN_BEFORE_CONFIRMATORY_RUN",
+  "evaluation_seeds": [
+    10000,
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007,
+    10008,
+    10009,
+    10010,
+    10011,
+    10012,
+    10013,
+    10014,
+    10015,
+    10016,
+    10017,
+    10018,
+    10019,
+    10020,
+    10021,
+    10022,
+    10023,
+    10024,
+    10025,
+    10026,
+    10027,
+    10028,
+    10029
+  ],
+  "development_seeds": [
+    9100,
+    9101,
+    9102,
+    9103,
+    9104,
+    9105,
+    9106,
+    9107,
+    9108,
+    9109
+  ],
+  "scenarios": [
+    "s1",
+    "s2a",
+    "s2b",
+    "s3a",
+    "s3b"
+  ],
+  "methods": [
+    "baseline",
+    "class_weight",
+    "smote",
+    "ctgan",
+    "oracle"
+  ],
+  "models": [
+    "LR",
+    "RF"
+  ],
+  "primary_metric": "ap",
+  "primary_policy": "default",
+  "ctgan_epochs_by_model": {
+    "LR": 10,
+    "RF": 10
+  },
+  "selection_uses_evaluation_results": false
+}

@@ -19,12 +19,12 @@ from sklearn.preprocessing import StandardScaler
 from benchmark_v2 import Settings, augment, derived_seed, sample
 
 
-def choose_epochs(seeds, scenarios, epochs, output, trees=80):
-    if seeds < 1 or any(e < 1 for e in epochs):
+def choose_epochs(seeds, scenarios, epochs, output, trees=80, seed_start=0):
+    if seeds < 1 or seed_start < 0 or any(e < 1 for e in epochs):
         raise ValueError("seeds and epochs must be positive")
     records = []
     for scenario in scenarios:
-        for seed in range(seeds):
+        for seed in range(seed_start, seed_start + seeds):
             # Deliberately no test sample or test scores in this module.
             xa, ya = sample(1000, seed, scenario, "train", Settings())
             xf, xv, yf, yv = train_test_split(
@@ -62,7 +62,7 @@ def choose_epochs(seeds, scenarios, epochs, output, trees=80):
         "status": "EXPLORATORY_VALIDATION_SELECTION",
         "metric": "mean_validation_average_precision",
         "tie_break": "lowest_epoch",
-        "seeds": list(range(seeds)), "scenarios": scenarios, "epochs": epochs,
+        "seeds": list(range(seed_start, seed_start + seeds)), "scenarios": scenarios, "epochs": epochs,
         "warning": "Selection reuses a single validation set per seed; do not report it as unbiased performance."
     }, indent=2), encoding="utf-8")
     return selected
@@ -71,9 +71,10 @@ def choose_epochs(seeds, scenarios, epochs, output, trees=80):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--seeds", type=int, default=5)
+    p.add_argument("--seed-start", type=int, default=0)
     p.add_argument("--scenarios", nargs="+", default=["s1"])
     p.add_argument("--epochs", type=int, nargs="+", default=[10, 50, 100])
     p.add_argument("--rf-trees", type=int, default=80)
     p.add_argument("--output", type=Path, default=Path(__file__).parent / "epoch_selection")
     a = p.parse_args()
-    print(choose_epochs(a.seeds, a.scenarios, a.epochs, a.output, a.rf_trees).to_string(index=False))
+    print(choose_epochs(a.seeds, a.scenarios, a.epochs, a.output, a.rf_trees, a.seed_start).to_string(index=False))

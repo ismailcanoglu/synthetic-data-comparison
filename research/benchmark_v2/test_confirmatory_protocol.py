@@ -19,7 +19,7 @@ def protocol():
         "models": ["LR", "RF"],
         "primary_metric": "ap",
         "primary_policy": "default",
-        "ctgan_epochs": 100,
+        "ctgan_epochs_by_model": {"LR": 10, "RF": 10},
         "selection_uses_evaluation_results": False,
     }
 
