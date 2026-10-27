@@ -1,0 +1,2 @@
+scenario,seed,test_sha256,n_fit,n_val,n_test,fit_minority,val_minority,test_minority
+s1,0,390a0c2a0449d42119fa89d4e6db586dfdcbc6b1480b9458d9bc112af115c612,750,250,2000,81,27,197

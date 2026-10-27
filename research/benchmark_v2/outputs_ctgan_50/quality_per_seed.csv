@@ -1,0 +1,2 @@
+scenario,seed,method,n_added,generation_seconds,residual_mean,reference_residual_mean,residual_mean_gap,unique_rounded_4dp
+s1,0,ctgan,588,12.410528599983081,2.584538330703342,0.12267090252018513,2.4618674281831567,1.0

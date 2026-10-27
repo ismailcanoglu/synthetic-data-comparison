@@ -1,0 +1,26 @@
+{
+  "config_sha256": "b9b876f699ec62c8f1cb1f4289205e33274857897becdc997bcd31d722271e5c",
+  "config": {
+    "status": "EXPLORATORY",
+    "scenarios": [
+      "s1"
+    ],
+    "methods": [
+      "baseline",
+      "ctgan"
+    ],
+    "seeds": [
+      9000
+    ],
+    "ctgan_epochs_by_model": {
+      "LR": 100,
+      "RF": 10
+    },
+    "fit_n": 750,
+    "validation_n": 250,
+    "test_n": 2000,
+    "rf_trees": 80
+  },
+  "python": "3.11.9",
+  "status": "EXPLORATORY_NOT_CONFIRMATORY"
+}

@@ -1,0 +1,29 @@
+{
+  "status": "EXPLORATORY_NOT_CONFIRMATORY",
+  "generator": "research/generator_v2/generators.py",
+  "settings": {
+    "minority_probability": 0.1,
+    "observation_noise": 0.08,
+    "ring_noise_easy": 0.28,
+    "ring_noise_moderate": 0.85,
+    "shift_magnitude": 1.5
+  },
+  "seeds": [
+    0
+  ],
+  "scenarios": [
+    "s1"
+  ],
+  "methods": [
+    "baseline",
+    "ctgan"
+  ],
+  "fit_n": 750,
+  "validation_n": 250,
+  "test_n": 2000,
+  "rf_trees": 80,
+  "ctgan_epochs": 100,
+  "python": "3.11.9",
+  "numpy": "2.4.6",
+  "pandas": "2.3.3"
+}

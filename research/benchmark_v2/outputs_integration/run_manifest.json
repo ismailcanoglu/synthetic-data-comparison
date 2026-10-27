@@ -1,0 +1,33 @@
+{
+  "config_sha256": "cea82e5439cde408c42b8c9c6b095d495699601851f481703f7abadd33a95448",
+  "config": {
+    "methods": [
+      "baseline",
+      "class_weight",
+      "smote",
+      "ctgan",
+      "oracle"
+    ],
+    "seeds": [
+      9001
+    ],
+    "rf_trees": 80,
+    "validation_n": 250,
+    "ctgan_epochs_by_model": {
+      "RF": 10,
+      "LR": 100
+    },
+    "scenarios": [
+      "s1",
+      "s2a",
+      "s2b",
+      "s3a",
+      "s3b"
+    ],
+    "fit_n": 750,
+    "status": "EXPLORATORY",
+    "test_n": 2000
+  },
+  "python": "3.11.9",
+  "status": "EXPLORATORY_NOT_CONFIRMATORY"
+}

@@ -1,0 +1,135 @@
+{
+  "config_sha256": "957977ec0251c86ef26cde6db96fc63f3f3446b528704fc5567fb0c8596f71e6",
+  "protocol_sha256": "de4ac3e566483271a623b18b71cf6c3ab81b8a5a1adcc36a745cfe47975aec63",
+  "config": {
+    "status": "FROZEN_BEFORE_CONFIRMATORY_RUN",
+    "scenarios": [
+      "s1",
+      "s2a",
+      "s2b",
+      "s3a",
+      "s3b"
+    ],
+    "methods": [
+      "baseline",
+      "class_weight",
+      "smote",
+      "ctgan",
+      "oracle"
+    ],
+    "seeds": [
+      10000,
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010,
+      10011,
+      10012,
+      10013,
+      10014,
+      10015,
+      10016,
+      10017,
+      10018,
+      10019,
+      10020,
+      10021,
+      10022,
+      10023,
+      10024,
+      10025,
+      10026,
+      10027,
+      10028,
+      10029
+    ],
+    "ctgan_epochs_by_model": {
+      "LR": 10,
+      "RF": 10
+    },
+    "fit_n": 750,
+    "validation_n": 250,
+    "test_n": 2000,
+    "rf_trees": 80
+  },
+  "protocol": {
+    "status": "FROZEN_BEFORE_CONFIRMATORY_RUN",
+    "evaluation_seeds": [
+      10000,
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009,
+      10010,
+      10011,
+      10012,
+      10013,
+      10014,
+      10015,
+      10016,
+      10017,
+      10018,
+      10019,
+      10020,
+      10021,
+      10022,
+      10023,
+      10024,
+      10025,
+      10026,
+      10027,
+      10028,
+      10029
+    ],
+    "development_seeds": [
+      9100,
+      9101,
+      9102,
+      9103,
+      9104,
+      9105,
+      9106,
+      9107,
+      9108,
+      9109
+    ],
+    "scenarios": [
+      "s1",
+      "s2a",
+      "s2b",
+      "s3a",
+      "s3b"
+    ],
+    "methods": [
+      "baseline",
+      "class_weight",
+      "smote",
+      "ctgan",
+      "oracle"
+    ],
+    "models": [
+      "LR",
+      "RF"
+    ],
+    "primary_metric": "ap",
+    "primary_policy": "default",
+    "ctgan_epochs_by_model": {
+      "LR": 10,
+      "RF": 10
+    },
+    "selection_uses_evaluation_results": false
+  },
+  "python": "3.11.9",
+  "status": "FROZEN_BEFORE_CONFIRMATORY_RUN"
+}

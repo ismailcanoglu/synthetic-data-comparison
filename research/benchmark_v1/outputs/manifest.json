@@ -1,0 +1,29 @@
+{
+  "status": "EXPLORATORY_NOT_CONFIRMATORY",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "scenarios": [
+    "s1",
+    "s2a",
+    "s2b",
+    "s3a",
+    "s3b"
+  ],
+  "methods": [
+    "baseline",
+    "class_weight",
+    "smote",
+    "oracle"
+  ],
+  "rf_trees": 80,
+  "ctgan_epochs": 100,
+  "fit_n": 750,
+  "validation_n": 250,
+  "test_n": 2000,
+  "python": "3.13.5",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3"
+}

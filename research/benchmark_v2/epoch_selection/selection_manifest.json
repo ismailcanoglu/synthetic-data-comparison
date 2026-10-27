@@ -1,0 +1,21 @@
+{
+  "status": "EXPLORATORY_VALIDATION_SELECTION",
+  "metric": "mean_validation_average_precision",
+  "tie_break": "lowest_epoch",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "scenarios": [
+    "s1"
+  ],
+  "epochs": [
+    10,
+    50,
+    100
+  ],
+  "warning": "Selection reuses a single validation set per seed; do not report it as unbiased performance."
+}
